@@ -1,0 +1,50 @@
+
+# CACHE MEMORY MANAGEMENT
+# BASELINE CODE
+
+def main():
+
+    print("===================================")
+    print("     CACHE MEMORY MANAGEMENT")
+    print("       FIFO VS LRU PROJECT")
+    print("===================================")
+
+    # Get cache capacity
+    capacity = int(input("\nEnter cache capacity: "))
+
+    # Get number of page requests
+    n = int(input("Enter number of page requests: "))
+
+    # Validate input
+    if capacity <= 0 or n <= 0:
+        print("Invalid input!")
+        return
+
+    # Store page requests
+    pages = []
+
+    print("\nEnter page requests:")
+
+    for i in range(n):
+        value = int(input("Page: "))
+        pages.append(value)
+
+    # Display input information
+    print("\n========== BASELINE RESULTS ==========")
+
+    print("Cache Capacity:", capacity)
+    print("Total Page Requests:", n)
+    print("Page Requests:", pages)
+
+    # Initial cache statistics
+    hits = 0
+    misses = 0
+
+    print("\nInitial Cache Hits:", hits)
+    print("Initial Cache Misses:", misses)
+
+    print("\n===== BASELINE COMPLETED =====")
+
+
+if __name__ == "__main__":
+    main()
