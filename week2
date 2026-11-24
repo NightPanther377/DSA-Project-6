@@ -1,0 +1,81 @@
+
+FINAL_CACHE = []
+
+
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.prev = None
+        self.next = None
+
+
+class LRUCache:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.cache = {}
+        self.head = None
+        self.tail = None
+        self.size = 0
+        self.hits = 0
+        self.misses = 0
+
+    def remove_node(self, node):
+        if node.prev:
+            node.prev.next = node.next
+        else:
+            self.head = node.next
+
+        if node.next:
+            node.next.prev = node.prev
+        else:
+            self.tail = node.prev
+
+    def insert_front(self, node):
+        node.prev = None
+        node.next = self.head
+
+        if self.head:
+            self.head.prev = node
+        else:
+            self.tail = node
+
+        self.head = node
+
+    def access(self, data):
+        if data in self.cache:
+            self.hits += 1
+            node = self.cache[data]
+            self.remove_node(node)
+            self.insert_front(node)
+
+        else:
+            self.misses += 1
+
+            if self.size == self.capacity:
+                removed = self.tail
+                self.remove_node(removed)
+                del self.cache[removed.data]
+                self.size -= 1
+
+            node = Node(data)
+            self.insert_front(node)
+            self.cache[data] = node
+            self.size += 1
+
+
+def run_LRU(pages, capacity):
+    global FINAL_CACHE
+
+    lru = LRUCache(capacity)
+
+    for data in pages:
+        lru.access(data)
+
+    FINAL_CACHE = []
+    temp = lru.head
+
+    while temp:
+        FINAL_CACHE.append(temp.data)
+        temp = temp.next
+
+    return lru.hits, lru.misses
