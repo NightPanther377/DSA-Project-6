@@ -1,0 +1,103 @@
+
+import re
+import fifo
+import lru
+from tkinter import Tk, filedialog
+
+
+def read_trace(filename):
+    with open(filename, "r") as file:
+        content = file.read()
+
+    pattern = r"\{\s*(\d+)\s*,\s*(\d+)\s*,\s*(-?\d+)\s*\}"
+    matches = re.findall(pattern, content)
+
+    pages = [int(addr) for op, addr, value in matches]
+
+    if len(pages) != 10000:
+        raise ValueError(
+            "Expected 10000 accesses, found " + str(len(pages))
+        )
+
+    return pages
+
+
+def main():
+    print("===== FIFO VS LRU CACHE SIMULATION =====")
+
+    root = Tk()
+    root.withdraw()
+
+    filename = filedialog.askopenfilename(
+        title="Select trace file",
+        filetypes=[
+            ("Trace files", "*.h *.txt"),
+            ("All files", "*.*")
+        ]
+    )
+
+    root.destroy()
+
+    if not filename:
+        print("No file selected!")
+        return
+
+    try:
+        pages = read_trace(filename)
+
+        print("\nTrace loaded successfully!")
+        print("Total accesses:", len(pages))
+
+        capacity = int(input("\nEnter cache capacity: "))
+
+        if capacity <= 0 or capacity > 256:
+            print("Capacity must be between 1 and 256.")
+            return
+
+        # Run both algorithms silently
+        fifo_hits, fifo_misses = fifo.FIFO(pages, capacity)
+        lru_hits, lru_misses = lru.run_LRU(pages, capacity)
+
+        total = len(pages)
+
+        # Display only final cache contents
+        print("\n========== FINAL CACHE CONTENTS ==========")
+
+        print("Queues Final Cache:", fifo.FINAL_CACHE)
+        print("LRU Final Cache:", lru.FINAL_CACHE)
+
+        # Display final results
+        print("\n========== QUEUES RESULTS ==========")
+
+        print("Hits:", fifo_hits)
+        print("Misses:", fifo_misses)
+        print("Hit Ratio:", round(fifo_hits / total * 100, 2), "%")
+        print("Miss Ratio:", round(fifo_misses / total * 100, 2), "%")
+
+        print("\n========== LRU RESULTS ==========")
+
+        print("Hits:", lru_hits)
+        print("Misses:", lru_misses)
+        print("Hit Ratio:", round(lru_hits / total * 100, 2), "%")
+        print("Miss Ratio:", round(lru_misses / total * 100, 2), "%")
+
+        # Final comparison
+        print("\n========== FINAL COMPARISON ==========")
+
+        if fifo_hits > lru_hits:
+            print("Queues performs better.")
+
+        elif lru_hits > fifo_hits:
+            print("LRU performs better.")
+
+        else:
+            print("Both algorithms perform equally.")
+
+        print("\nSimulation completed!")
+
+    except (ValueError, OSError) as error:
+        print("\nError:", error)
+
+
+if __name__ == "__main__":
+    main()
